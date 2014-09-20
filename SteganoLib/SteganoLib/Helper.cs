@@ -11,14 +11,12 @@ namespace SteganoLib
 		//Does a bitshift, but wraps the overflow
 		public static byte RotateLeft(byte value, int count)
 		{
-			count &= 0x07;
 			return (byte)((value << count) | (value >> (8 - count)));
 		}
 
 		//Does a bitshift, but wraps the overflow
 		public static byte RotateRight(byte value, int count)
 		{
-			count &= 0x07;
 			return (byte)((value >> count) | (value << (8 - count)));
 		}
 

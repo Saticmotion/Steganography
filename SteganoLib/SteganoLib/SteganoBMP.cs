@@ -11,7 +11,10 @@ namespace SteganoLib
 {
 	public class SteganoBMP
 	{
-		public static void Embed(Bitmap target, String filename)
+		//Embed a file in an image. Because Bitmap is an abstract representation of an image,
+		//it can then be saved in any image format. Though the file will not be retrievable from
+		//a lossy format.
+		public static Bitmap Embed(Bitmap target, String input)
 		{
 			//We don't require a specific area to be locked, but we still need to specify one
 			//So we choose to lock the entire image.
@@ -27,11 +30,18 @@ namespace SteganoLib
 			//i.e. The first pixel in memory is the bottom right one.
 			int imageSize = Math.Abs(bmpData.Stride) * bmpData.Height;
 
-			byte[] fileBytes = File.ReadAllBytes(filename);
+			//Get all the bytes from the file we want to embed, and save it in a byte array
+			byte[] fileBytes = File.ReadAllBytes(input);
+
+			//If the file we want to embed is larger than 8 times the size of the image, we can't store it.
+			//This is because We need one byte in the image to store each bit of the file
+			if (fileBytes.Length * 8 > imageSize)
+				throw new FileTooLargeException("The file you are trying to embed needs an image of at least" + fileBytes.Length * 8 +  "bytes large");
 
 			unsafe
 			{
 				byte* ptr = (byte*)bmpData.Scan0;
+
 				for (int i = 0; i < imageSize; i += 8)
 				{
 					//AND the current value with ~1 (inverse of 1: 11111110). 
@@ -40,16 +50,21 @@ namespace SteganoLib
 					//Helper.GetBitAsByte extracts a single bit from a byte.
 					//And converts it to a byte, so we can do boolean arithmetic with it.
 					//We also need to do this 8 times in one iteration, so that the indexers line up nicely.
-					ptr[i] = (byte)(ptr[i] & ~1 | Helper.GetBitAsByte(fileBytes[i], 1));
-					ptr[i + 1] = (byte)(ptr[i + 1] & ~1 | Helper.GetBitAsByte(fileBytes[i], 2));
-					ptr[i + 2] = (byte)(ptr[i + 2] & ~1 | Helper.GetBitAsByte(fileBytes[i], 3));
-					ptr[i + 3] = (byte)(ptr[i + 3] & ~1 | Helper.GetBitAsByte(fileBytes[i], 4));
-					ptr[i + 4] = (byte)(ptr[i + 4] & ~1 | Helper.GetBitAsByte(fileBytes[i], 5));
-					ptr[i + 5] = (byte)(ptr[i + 5] & ~1 | Helper.GetBitAsByte(fileBytes[i], 6));
-					ptr[i + 6] = (byte)(ptr[i + 6] & ~1 | Helper.GetBitAsByte(fileBytes[i], 7));
-					ptr[i + 7] = (byte)(ptr[i + 7] & ~1 | Helper.GetBitAsByte(fileBytes[i], 8));
+					for (int j = 0; j < 8; j++)
+					{
+						ptr[i + j] = (byte)(ptr[i + j] & ~1 | Helper.GetBitAsByte(fileBytes[i], j));
+					}
 				}
 			}
+
+			target.UnlockBits(bmpData);
+
+			return target;
+		}
+
+		public static void Extract(Bitmap source)
+		{
+
 		}
 
 		public static void shiftTest()
