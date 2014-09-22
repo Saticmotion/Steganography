@@ -16,19 +16,23 @@ namespace SteganoTest
 		{
 
 			//TODO: test this test.
-			String originalFilePath = args[1];
-			Bitmap originalImage = (Bitmap)Bitmap.FromFile(args[0]);
+			String originalFilePath = @"..\..\testFiles\hide.txt";
+			Bitmap originalImage = (Bitmap)Bitmap.FromFile(@"..\..\testFiles\test.jpg");
 			Bitmap steganoImage;
 			byte[] originalFile = File.ReadAllBytes(originalFilePath);
 			byte[] embeddedFile;
 
 			steganoImage = SteganoBMP.Embed(originalImage, originalFilePath);
+			Console.WriteLine(String.Join(" ", originalFile));
 			embeddedFile = SteganoBMP.Extract(steganoImage);
+			Console.WriteLine(String.Join(" ", embeddedFile));
 
 			if (Enumerable.SequenceEqual(originalFile, embeddedFile))
 			{
 				Console.WriteLine("Succes!");
 			}
+			Console.ReadLine();
+
 		}
 	}
 }
