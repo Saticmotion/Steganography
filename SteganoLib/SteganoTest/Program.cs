@@ -1,12 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using SteganoLib;
+using System;
 using System.Drawing;
-using System.Drawing.Imaging;
 using System.IO;
-using SteganoLib;
+using System.Linq;
+using System.Drawing.Imaging;
+using System.Diagnostics;
 
 namespace SteganoTest
 {
@@ -14,25 +12,36 @@ namespace SteganoTest
 	{
 		static void Main(string[] args)
 		{
-
-			//TODO: test this test.
 			String originalFilePath = @"..\..\testFiles\hide.txt";
-			Bitmap originalImage = (Bitmap)Bitmap.FromFile(@"..\..\testFiles\test.jpg");
+			String savePath = @"..\..\testFiles\save.png";
+			Bitmap originalImage = (Bitmap)Bitmap.FromFile(@"..\..\testFiles\test.png");
 			Bitmap steganoImage;
-			byte[] originalFile = File.ReadAllBytes(originalFilePath);
-			byte[] embeddedFile;
 
 			steganoImage = SteganoBMP.Embed(originalImage, originalFilePath);
-			Console.WriteLine(String.Join(" ", originalFile));
-			embeddedFile = SteganoBMP.Extract(steganoImage);
-			Console.WriteLine(String.Join(" ", embeddedFile));
 
-			if (Enumerable.SequenceEqual(originalFile, embeddedFile))
-			{
-				Console.WriteLine("Succes!");
-			}
+			EncoderParameters encoderParams = new EncoderParameters(1);
+			EncoderParameter encoderP = new EncoderParameter(Encoder.Quality, 100L);
+			encoderParams.Param[0] = encoderP;
+
+			steganoImage.Save(savePath, GetEncoder(ImageFormat.Png), encoderParams);
+			
 			Console.ReadLine();
 
+		}
+
+		private static ImageCodecInfo GetEncoder(ImageFormat format)
+		{
+
+			ImageCodecInfo[] codecs = ImageCodecInfo.GetImageDecoders();
+
+			foreach (ImageCodecInfo codec in codecs)
+			{
+				if (codec.FormatID == format.Guid)
+				{
+					return codec;
+				}
+			}
+			return null;
 		}
 	}
 }
