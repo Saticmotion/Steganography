@@ -3,13 +3,23 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
-using System.Threading.Tasks;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace SteganoLib
 {
 	public class SteganoBMP
 	{
+		//32 bits in an int
+		public const int FILE_LENGTH_LENGTH = 32;
+		public const int FILE_LENGTH_OFFSET = 0;
+
+		//24 bits in three bytes. Our entension is always three characters
+		public const int FILE_EXT_LENGTH = 24;
+		public const int FILE_EXT_OFFSET = FILE_LENGTH_LENGTH;
+
+		public const int FILE_OFFSET = FILE_EXT_OFFSET +  FILE_EXT_LENGTH;
+
 		//Embed a file in an image. Because Bitmap is an abstract representation of an image,
 		//it can then be saved in any image format. Though the file will not be retrievable from
 		//a lossy format.
@@ -23,106 +33,177 @@ namespace SteganoLib
 
 			byte[] fileBytes = File.ReadAllBytes(inputFilePath);
 
-			//If the file we want to embed is larger than 8 times the size of the image, we can't store it.
-			//This is because We need one byte in the image to store each bit of the file
-			if (fileBytes.Length * 8 > imageSize)
+			//Length of file in bits plus the space needed by our file header.
+			//We need the length in bits because each bit in our file needs a byte of space in the image.
+			int bytesNeeded = (fileBytes.Length + FILE_OFFSET) * 8;
+
+			//If the file we want to embed is too large, throw an exception.
+			if (bytesNeeded > imageSize)
 			{
-				throw new FileTooLargeException("The file you are trying to embed needs an image of at least" + fileBytes.Length * 8 + "bytes large");
+				throw new FileTooLargeException("The file you are trying to embed needs an image of at least" + bytesNeeded + "bytes large");
 			}
 
-			unsafe
-			{
-				byte* ptr = (byte*)bmpData.Scan0;
+			//Split our filename on '.', and select the extension
+			string fileExtension = inputFilePath.Split('.').Last();
 
-				Parallel.For(0, fileBytes.Length, (i) =>
-				{
-					//We need to do this step 8 times per iteration because we need to access 8 bytes
-					//in the image for each byte in the file.
-					for (int j = 0; j < 8; j++)
-					{
-						//AND the current value with ~1 (inverse of 1: 11111110). 
-						//This wil set the last bit to 0.
-						//Then OR with the new bit
-						//Helper.GetBitAsByte extracts a single bit from a byte.
-						//And converts it to a byte, so we can do boolean arithmetic with it.
-						ptr[i * 8 + j] = (byte)(ptr[i * 8 + j] & ~1 | Helper.GetBitAsByte(fileBytes[i], 7 - j));
-					}
-				});
-
-				//This is the last byte in the file we're embedding, so we've used 8 times as many in our image, hence times 8
-				int lastByte = fileBytes.Length * 8;
-
-				//Write an EOF character (0xff) after our data.
-				for (int i = lastByte; i < lastByte + 8; i++)
-				{
-					ptr[i] = (byte)(ptr[i] | 1);
-				}
-			}
+			WriteFileHeader(bmpData, fileBytes.Length, fileExtension);
+			WriteFile(bmpData, fileBytes);
 
 			target.UnlockBits(bmpData);
 
 			return target;
 		}
 
+		//Write the file header to the image, consisting of the filelength and the extension
+		private static void WriteFileHeader(BitmapData bmpData, int fileLength, string extension)
+		{
+			WriteFileLength(bmpData, fileLength);
+			WriteFileExtension(bmpData, extension);
+		}
+
+		//Write the length of the file to the image
+		unsafe private static void WriteFileLength(BitmapData bmpData, int fileLength)
+		{
+			byte* ptr = (byte*)bmpData.Scan0;
+
+			//Start writing the file length at FILE_LENGTH_OFFSET. This is the first byte.
+			for (int i = FILE_LENGTH_OFFSET; i < FILE_LENGTH_OFFSET + FILE_LENGTH_LENGTH; i++)
+			{
+				//See WriteFile() for an explanation of this line.
+				ptr[i] = (byte)(ptr[i] & ~1 | Helper.GetBitAsInt(fileLength, 31 - i));
+			}
+		}
+
+		//Write the extension of the file to the image
+		unsafe private static void WriteFileExtension(BitmapData bmpData, string extension)
+		{
+			//Convert extension to its UTF-8 representation.
+			byte[] extensionBytes = System.Text.Encoding.UTF8.GetBytes(extension);
+
+			byte* ptr = (byte*)bmpData.Scan0;
+
+			//Start writing the file extension at FILE_EXT_OFFSET. This is the first byte after our file length.
+			//Division by 8 because we've stored the LENGTH as bits, but need to iterate through bytes.
+			for (int i = 0; i < FILE_EXT_LENGTH / 8; i++)
+			{
+				for (int j = 0; j < 8; j++)
+				{
+					//Calculate the index of the image, since it's not equal to the index of the file.
+					int index = i * 8 + FILE_EXT_OFFSET + j;
+					//See WriteFile() for an explanation of this line.
+					ptr[index] = (byte)(ptr[index] & ~1 | Helper.GetBitAsByte(extensionBytes[i], 7 - j));
+				}
+			}
+		}
+
+		//Write the file to the image
+		unsafe private static void WriteFile(BitmapData bmpData, byte[] fileBytes)
+		{
+			byte* ptr = (byte*)bmpData.Scan0;
+
+			Parallel.For(0, fileBytes.Length, (i) =>
+			{
+				//We need to do this step 8 times per iteration because we need to access 8 bytes
+				//in the image for each byte in the file.
+				for (int j = 0; j < 8; j++)
+				{
+					//Calculate the index of the image, since it's not equal to the index of the file.
+					int index = i * 8 + FILE_OFFSET + j;
+
+					//AND the current value with ~1 (inverse of 1: 11111110).
+					//This wil set the last bit to 0.
+					//Then OR with the new bit
+					//Helper.GetBitAsByte extracts a single bit from a byte.
+					//And converts it to a byte, so we can do boolean arithmetic with it.
+					ptr[index] = (byte)(ptr[index] & ~1 | Helper.GetBitAsByte(fileBytes[i], 7 - j));
+				}
+			});
+	}
+
 		//Extract an embedded file from an image.
 		//Returns a byte[], so the consumer can do with the data whatever he likes.
-		public static byte[] Extract(Bitmap source)
+		public static byte[] Extract(Bitmap source, out string extension)
 		{
 			BitmapData bmpData = PrepareImage(source);
 
-			int imageSize = Math.Abs(bmpData.Stride) * bmpData.Height;
+			int length = ExtractFileLength(bmpData);
+			extension = ExtractFileExtension(bmpData);
 
-			//We use a List, because we don't know in advance how big the enbedded file is.
-			List<byte> fileBytes = new List<byte>();
+			byte[] file = ExtractFile(bmpData, length);
 
-			bool fileRead = false;
+			return file;
+		}
 
-			unsafe
+		//Extract the file length from the image
+		unsafe private static int ExtractFileLength(BitmapData bmpData)
+		{
+			byte* ptr = (byte*)bmpData.Scan0;
+
+			int length = 0;
+
+			//Start reading at FILE_LENGTH_OFFSET, this is the first byte.
+			for (int i = FILE_LENGTH_OFFSET; i < FILE_LENGTH_OFFSET + FILE_LENGTH_LENGTH; i++)
 			{
-				//Get a pointer to the first pixel;
-				byte* ptr = (byte*)bmpData.Scan0;
+				//Set the last bit of the current file byte to the last bit of the image byte.
+				//Then shift it one spot to the left.
+				//This allows us to do this:
+				//0000 0001
+				//0000 0011
+				//0000 0110
+				//0000 1101
+				//etc.
+				length <<= 1;
+				length = length & ~1 | Helper.GetBitAsInt(ptr[i], 0);
+			}
 
-				for (int i = 0; i < imageSize; i++)
+			return length;
+		}
+
+		//Extract the extension of the file from the image
+		unsafe private static string ExtractFileExtension(BitmapData bmpData)
+		{
+			byte* ptr = (byte*)bmpData.Scan0;
+
+			//byte[3] because we know the extension will always be three characters long.
+			byte[] extension = new byte[3];
+
+			for (int i = 0; i < FILE_EXT_LENGTH / 8; i++)
+			{
+				for (int j = 0; j < 8; j++)
 				{
-					//Add a zero byte to our List
-					fileBytes.Add(0x0);
+					//Calculate the index of the image, since it's not equal to the index of the file.
+					int index = i * 8 + FILE_EXT_OFFSET + j;
 
-					for (int j = 0; j < 8; j++)
-					{
-						//Set the last bit of the current file byte to the last bit of the image byte.
-						//Then shift it one spot to the left.
-						//This allows us to do this:
-						//0000 0001
-						//0000 0011
-						//0000 0110
-						//0000 1101
-						//etc.
-						fileBytes[i] <<= 1;
-						fileBytes[i] = (byte)(fileBytes[i] & ~1 | Helper.GetBitAsByte(ptr[i * 8 + j], 0));
-
-						//If we read EOF we're done.
-						if (fileBytes[i] == 0xff)
-						{
-							fileRead = true;
-							break;
-						}
-					}
-
-					if (fileRead)
-					{
-						break;
-					}
+					//See ExtractFileLength for an explanation of this technique
+					extension[i] <<= 1;
+					extension[i] = (byte)(extension[i] & ~1 | Helper.GetBitAsByte(ptr[index], 0));
 				}
 			}
 
-			source.UnlockBits(bmpData);
+			return System.Text.Encoding.UTF8.GetString(extension);
+		}
 
-			//Remove our last byte, this is the EOF byte.
-			fileBytes.RemoveAt(fileBytes.Count - 1);
+		//Extract the file from the image
+		unsafe private static byte[] ExtractFile(BitmapData bmpData, int length)
+		{
+			byte* ptr = (byte*)bmpData.Scan0;
 
-			byte[] byteArray = fileBytes.ToArray<byte>();
+			byte[] file = new byte[length];
 
-			return byteArray;
+			for (int i = 0; i < length; i++)
+			{
+				for (int j = 0; j < 8; j++)
+				{
+					//Calculate the index of the image, since it's not equal to the index of the file.
+					int index = i * 8 + FILE_OFFSET + j;
+
+					//See ExtractFileLength for an explanation of this technique
+					file[i] <<= 1;
+					file[i] = (byte)(file[i] & ~1 | Helper.GetBitAsByte(ptr[index], 0));
+				}
+			}
+
+			return file;
 		}
 
 		//This is some boilerplate code to prepare our image for unmanaged access.

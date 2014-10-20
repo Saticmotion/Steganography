@@ -30,5 +30,26 @@ namespace SteganoLib
 			//This is possible because a boolean also takes a byte of memory.
 			return Convert.ToByte((b & (1 << bitNumber)) != 0);
 		}
+
+		//Gets the bit at a certain position in an int,
+		//And presents it as an int: 0x0000 or 0x0001
+		public static int GetBitAsInt(int b, int bitNumber)
+		{
+			//This is the same function as GetBit, but we add a conversion to Byte.
+			//This is possible because a boolean also takes a byte of memory.
+			return Convert.ToInt32((b & (1 << bitNumber)) != 0);
+		}
+
+		//Convert a byte to a string, and pad it with leading zeroes.
+		public static string PrintAsBits(byte b)
+		{
+			return Convert.ToString(b, 2).PadLeft(8, '0');
+		}
+
+		//Convert an int to a string, and pad it with leading zeroes.
+		public static string PrintAsBits(int i)
+		{
+			return Convert.ToString(i, 2).PadLeft(32, '0');
+		}
 	}
 }

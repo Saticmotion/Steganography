@@ -1,10 +1,8 @@
 ﻿using SteganoLib;
 using System;
 using System.Drawing;
-using System.IO;
-using System.Linq;
 using System.Drawing.Imaging;
-using System.Diagnostics;
+using System.IO;
 
 namespace SteganoTest
 {
@@ -13,6 +11,7 @@ namespace SteganoTest
 		static void Main(string[] args)
 		{
 			String originalFilePath = @"..\..\testFiles\hide.txt";
+			String extractedFilePath = @"..\..\testFiles\extract";
 			String savePath = @"..\..\testFiles\save.png";
 			Bitmap originalImage = (Bitmap)Bitmap.FromFile(@"..\..\testFiles\test.png");
 			Bitmap steganoImage;
@@ -24,7 +23,13 @@ namespace SteganoTest
 			encoderParams.Param[0] = encoderP;
 
 			steganoImage.Save(savePath, GetEncoder(ImageFormat.Png), encoderParams);
-			
+
+			string extension;
+			byte[] file = SteganoBMP.Extract(steganoImage, out extension);
+
+			File.WriteAllBytes(extractedFilePath + "." + extension, file);
+
+			Console.Write("Done. Press any key.");
 			Console.ReadLine();
 
 		}
