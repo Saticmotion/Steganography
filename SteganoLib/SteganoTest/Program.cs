@@ -16,11 +16,11 @@ namespace SteganoTest
 			Bitmap originalImage = (Bitmap)Bitmap.FromFile(@"..\..\testFiles\test.png");
 			Bitmap steganoImage;
 
-			steganoImage = SteganoBMP.Embed(originalImage, originalFilePath);
+            steganoImage = SteganoBMP.Embed(originalImage, originalFilePath);
 
-			EncoderParameters encoderParams = new EncoderParameters(1);
-			EncoderParameter encoderP = new EncoderParameter(Encoder.Quality, 100L);
-			encoderParams.Param[0] = encoderP;
+            EncoderParameters encoderParams = new EncoderParameters(1);
+            EncoderParameter encoderP = new EncoderParameter(Encoder.Quality, 100L);
+            encoderParams.Param[0] = encoderP;
 
 			steganoImage.Save(savePath, GetEncoder(ImageFormat.Png), encoderParams);
 
@@ -31,6 +31,18 @@ namespace SteganoTest
 
 			Console.Write("Done. Press any key.");
 			Console.ReadLine();
+
+            String orFilePath = @"..\..\testFiles\blub.txt";
+            String sPath = @"..\..\testFiles\resultJungle.wav";
+            String waveFile = @"..\..\testFiles\WelcometotheJungle.wav";
+            byte[] resultBytes = SteganoWav.Embed(waveFile, orFilePath);
+            File.WriteAllBytes(sPath, resultBytes);
+
+
+
+            byte[] originalBytes = SteganoWav.Extract(sPath);
+            File.WriteAllBytes(@"..\..\testFiles\resulttext."+ SteganoWav.Extention, originalBytes);
+            Console.ReadLine();
 
 		}
 
