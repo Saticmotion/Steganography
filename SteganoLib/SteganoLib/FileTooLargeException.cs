@@ -5,7 +5,7 @@ using System.Text;
 
 namespace SteganoLib
 {
-	class FileTooLargeException : Exception
+	public class FileTooLargeException : Exception
 	{
 		public FileTooLargeException(string message) : base(message){}
 	}

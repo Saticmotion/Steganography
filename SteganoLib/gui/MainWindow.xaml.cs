@@ -21,6 +21,7 @@ using System.Windows.Navigation;
 using System.Windows.Shapes;
 using System.ComponentModel;
 using System.Timers;
+using SteganoLib;
 
 namespace gui
 {
@@ -29,14 +30,16 @@ namespace gui
     /// </summary>
     public partial class MainWindow : Window
     {
-        private Stream _messageStream;
-        private Stream _carrierStream;
-        private String _path;
+        private string _messageString;
+        private string _carrierString;
+        private string _extractString;
+	    private string _outputMessageFilepath;
         
 
         public MainWindow()
         {
             InitializeComponent();
+			MakeAudioHidden();
         }
         private void BtnOpenFile_Click(object sender, RoutedEventArgs e)
         {
@@ -46,7 +49,7 @@ namespace gui
             Nullable<bool> result = dialog.ShowDialog();
             if (result == true)
             {
-                _messageStream = dialog.OpenFile();
+                _messageString = dialog.FileName;
                 TxtFileToHide.Text = dialog.SafeFileName;
             }
         }
@@ -57,13 +60,93 @@ namespace gui
             Nullable<bool> result = dialog.ShowDialog();
             if (result == true)
             {
-                _carrierStream = dialog.OpenFile();
-                TxtFileCarrier.Text = dialog.SafeFileName;
-                _path = dialog.FileName;
+                _carrierString = dialog.FileName;
+                TxtFileCarrier.Text = dialog.FileName;
 
-                AudioPlayer.InitializeMedia(_path);
+	            LblOriginalAudio.Content = dialog.SafeFileName;
+                AudioPlayer.InitializeMedia(_carrierString);
 
             }
         }
+
+		private void BtnEncrypt_Click(object sender, RoutedEventArgs e)
+		{
+			SaveFileDialog sdialog = new SaveFileDialog();
+			sdialog.Filter = "Audio files (*.wav)|*.wav";
+			Nullable<bool> result = sdialog.ShowDialog();
+			if (result == true)
+			{
+				try
+				{
+					byte[] encryptedWavFile = SteganoWav.Embed(_carrierString, _messageString);
+					File.WriteAllBytes(sdialog.FileName, encryptedWavFile);
+					AudioPlayer2.InitializeMedia(sdialog.FileName);
+					LblEncryptedAudio.Content = sdialog.SafeFileName;
+					MakeAudioVisible();
+				}
+				catch (FileTooLargeException fileTooLargeException)
+				{
+					MessageBox.Show(fileTooLargeException.Message);
+				}
+				
+
+			}
+		}
+
+	    private void MakeAudioVisible()
+	    {
+		    LblEncryptedAudio.Visibility = Visibility.Visible;
+		    LblOriginalAudio.Visibility = Visibility.Visible;
+		    AudioPlayer.Visibility = Visibility.Visible;
+		    AudioPlayer2.Visibility = Visibility.Visible;
+		    AudioRectangle.Visibility = Visibility.Visible;
+
+	    }
+
+	    private void MakeAudioHidden()
+	    {
+		    LblEncryptedAudio.Visibility = Visibility.Hidden;
+		    LblOriginalAudio.Visibility = Visibility.Hidden;
+		    AudioPlayer.Visibility = Visibility.Hidden;
+			AudioPlayer2.Visibility = Visibility.Hidden;
+			AudioRectangle.Visibility = Visibility.Hidden;
+	    }
+
+		private void BtnOpenFileExtractCarrier_Click(object sender, RoutedEventArgs e)
+		{
+			OpenFileDialog dialog = new OpenFileDialog();
+			dialog.Filter = "Audio files (*.wav)|*.wav";
+			Nullable<bool> result = dialog.ShowDialog();
+			if (result == true)
+			{
+				_extractString = dialog.FileName;
+				TxtFileCarrierExtract.Text = _extractString;
+			}
+
+		}
+
+		private void BtnExtract_Click(object sender, RoutedEventArgs e)
+		{
+			SaveFileDialog sDialog = new SaveFileDialog();
+
+			byte[] resultMessage = SteganoWav.Extract(_extractString);
+			string extention = SteganoWav.Extention;
+			sDialog.Filter = "(*." + extention + ")|*" + extention;
+
+			Nullable<bool> result = sDialog.ShowDialog();
+			if (result == true)
+			{
+				_outputMessageFilepath = sDialog.FileName + "." + extention;
+				File.WriteAllBytes(_outputMessageFilepath,resultMessage);
+				MessageBox.Show(_outputMessageFilepath);
+			}
+		}
+
+		private void BtnOpenMessageFile_Click(object sender, RoutedEventArgs e)
+		{
+			System.Diagnostics.Process.Start(_outputMessageFilepath);
+		}
+
+		
     }
 }

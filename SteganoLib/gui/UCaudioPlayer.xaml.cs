@@ -27,7 +27,10 @@ namespace gui
         private DispatcherTimer timer;
         private MediaTimeline _mTimeline;
         private bool _isdragging;
-        
+	    private int _audioTotalMinutes;
+	    private int _audioTotalSeconds;
+	    private int _audioCurrentMinutes;
+	    private int _audioCurrentSeconds;
         public UCaudioPlayer()
         {
             InitializeComponent();
@@ -59,15 +62,26 @@ namespace gui
 
         private void media_MediaOpened(object sender, EventArgs e)
         {
-            AudioSlider.Maximum = mediaPlayer.NaturalDuration.TimeSpan.TotalMilliseconds;
-        }
+	        AudioSlider.Maximum = mediaPlayer.NaturalDuration.TimeSpan.TotalMilliseconds;
+	        _audioTotalMinutes= (int) AudioSlider.Maximum/1000/60;
+	        _audioTotalSeconds = (int)AudioSlider.Maximum/1000%60;
+			CurrentAudioTime((int)AudioSlider.Value);
+		}
+
+	    private void CurrentAudioTime(int value)
+	    {
+			_audioCurrentMinutes = value / 1000 / 60;
+			_audioCurrentSeconds = value / 1000 % 60;
+			TimeLabel.Content = _audioCurrentMinutes + ":" + _audioCurrentSeconds + "/" + _audioTotalMinutes + ":" + _audioTotalSeconds;
+	    }
 
         private void timer_Tick(object sender, EventArgs e)
         {
             if (!_isdragging)
             {
-                AudioSlider.Value = mediaPlayer.Clock.CurrentTime.Value.TotalMilliseconds;
-            }
+	            AudioSlider.Value = mediaPlayer.Clock.CurrentTime.Value.TotalMilliseconds;
+				CurrentAudioTime((int)AudioSlider.Value);
+			}
         }
 
         private void PlayButton_Click(object sender, RoutedEventArgs e)
@@ -90,8 +104,10 @@ namespace gui
             }
             else
             {
-
-                mediaPlayer.Clock.Controller.Begin();
+				mediaPlayer.Clock.Controller.Begin();
+				mediaPlayer.Clock.Controller.Seek(new TimeSpan(0, 0, 0, 0, (int)AudioSlider.Value), 0);
+				mediaPlayer.Clock.Controller.Resume();
+                
                 timer.Start();
                 _isplaying = true;
                 PlayImageBtn.Source = (ImageSource)FindResource("PauseImage");
@@ -101,9 +117,13 @@ namespace gui
 
         private void StopButton_Click(object sender, RoutedEventArgs e)
         {
+			mediaPlayer.Clock.Controller.Pause();
             mediaPlayer.Clock.Controller.Stop();
+			
             timer.Stop();
             AudioSlider.Value = 0;
+			CurrentAudioTime((int)AudioSlider.Value);
+			mediaPlayer.Clock.Controller.Seek(new TimeSpan(0, 0, 0, 0, (int)AudioSlider.Value), 0);
             _isplaying = false;
             PlayImageBtn.Source = (ImageSource)FindResource("PlayImage");
         }

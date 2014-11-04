@@ -59,7 +59,7 @@
     <Compile Include="UCaudioPlayer.xaml.cs">
       <DependentUpon>UCaudioPlayer.xaml</DependentUpon>
     </Compile>
-    <Page Include="Dictionary1.xaml">
+    <Page Include="ResDict.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -115,6 +115,12 @@
     <Resource Include="Resources\pause.png" />
     <Resource Include="Resources\play.png" />
     <Resource Include="Resources\stop.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\SteganoLib\SteganoLib.csproj">
+      <Project>{2ee6ea3d-3f24-489c-b012-b52fc91dabdb}</Project>
+      <Name>SteganoLib</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
