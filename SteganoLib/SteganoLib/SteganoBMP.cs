@@ -20,6 +20,14 @@ namespace SteganoLib
 
 		public const int FILE_OFFSET = FILE_EXT_OFFSET +  FILE_EXT_LENGTH;
 
+		public static Bitmap Embed(String targetFilePath, String inputFilePath)
+		{
+			Bitmap target = (Bitmap)Bitmap.FromFile(targetFilePath);
+			target = Embed(target, inputFilePath);
+
+			return target;
+		}
+
 		//Embed a file in an image. Because Bitmap is an abstract representation of an image,
 		//it can then be saved in any image format. Though the file will not be retrievable from
 		//a lossy format.
@@ -120,6 +128,17 @@ namespace SteganoLib
 			});
 	}
 
+		public static byte[] Extract(String source, out string extension)
+		{
+			Bitmap carrier = (Bitmap)Bitmap.FromFile(source);
+
+			byte[] file = Extract(carrier, out extension);
+
+			carrier.Dispose();
+
+			return file;
+		}
+
 		//Extract an embedded file from an image.
 		//Returns a byte[], so the consumer can do with the data whatever he likes.
 		public static byte[] Extract(Bitmap source, out string extension)
@@ -130,6 +149,9 @@ namespace SteganoLib
 			extension = ExtractFileExtension(bmpData);
 
 			byte[] file = ExtractFile(bmpData, length);
+
+			source.UnlockBits(bmpData);
+			source.Dispose();
 
 			return file;
 		}
@@ -207,7 +229,7 @@ namespace SteganoLib
 		}
 
 		//This is some boilerplate code to prepare our image for unmanaged access.
-		private static BitmapData PrepareImage(Bitmap image)
+		public static BitmapData PrepareImage(Bitmap image)
 		{
 			//We don't require a specific area to be locked, but we still need to specify one
 			//So we choose to lock the entire image.
