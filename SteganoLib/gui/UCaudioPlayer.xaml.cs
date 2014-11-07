@@ -55,6 +55,17 @@ namespace gui
             mediaPlayer.MediaOpened += media_MediaOpened;
         }
 
+	    public void CloseMedia()
+	    {
+			timer.Stop();
+		    AudioSlider.Value = 0;
+		    _isplaying = false;
+			CurrentAudioTime((int)AudioSlider.Value);
+			PlayImageBtn.Source = (ImageSource)FindResource("PlayImage");
+		    mediaPlayer.Clock = null;
+			mediaPlayer.Close();
+	    }
+
         private void MTimeline_CurrentTimeInvalidated(object sender, EventArgs e)
         {
             //
@@ -72,7 +83,8 @@ namespace gui
 	    {
 			_audioCurrentMinutes = value / 1000 / 60;
 			_audioCurrentSeconds = value / 1000 % 60;
-			TimeLabel.Content = _audioCurrentMinutes + ":" + _audioCurrentSeconds + "/" + _audioTotalMinutes + ":" + _audioTotalSeconds;
+			TimeLabel.Content = _audioCurrentMinutes + ":" + ((_audioCurrentSeconds<10)?"0"+Convert.ToString(_audioCurrentSeconds):Convert.ToString(_audioCurrentSeconds)) 
+				+ "/" + _audioTotalMinutes + ":" + _audioTotalSeconds;
 	    }
 
         private void timer_Tick(object sender, EventArgs e)

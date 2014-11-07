@@ -90,7 +90,7 @@
         </Button>
         <Slider HorizontalAlignment="Left" Style="{StaticResource MyCustomStyleForSlider}" x:Name="AudioSlider" Margin="10,17,0,0" VerticalAlignment="Top" Height="32" Width="290" Thumb.DragStarted="AudioSlider_DragStarted"
                             Thumb.DragCompleted="AudioSlider_OnDragCompleted"/>
-        <Label x:Name="TimeLabel" Content="Label" HorizontalAlignment="Left" Margin="200,32,0,-2" VerticalAlignment="Top" Height="24" Width="46" FontSize="8"/>
+        <Label x:Name="TimeLabel" Content="Label" HorizontalAlignment="Left" Margin="254,32,0,-2" VerticalAlignment="Top" Height="24" Width="46" FontSize="8" />
 
     </Grid>
 </UserControl>

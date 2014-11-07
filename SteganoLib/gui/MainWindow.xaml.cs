@@ -1,19 +1,14 @@
 ﻿using Microsoft.Win32;
-using System;
-using System.IO;
-using System.Windows;
 using SteganoLib;
+using System;
+using System.Diagnostics;
 using System.Drawing;
 using System.Drawing.Imaging;
+using System.IO;
 using System.Linq;
-using System.Collections.Generic;
-using System.Windows.Controls;
-using System.Windows.Media;
+using System.Windows;
 using System.Windows.Media.Imaging;
-using System.Windows.Interop;
 using Forms = System.Windows.Forms;
-using System.Diagnostics;
-using SteganoLib;
 
 namespace gui
 {
@@ -22,10 +17,10 @@ namespace gui
 	/// </summary>
 	public partial class MainWindow : Window
 	{
-        private string _messageString;
-        private string _carrierString;
-        private string _extractString;
-	    private string _outputMessageFilepath;
+		private string _messageString;
+		private string _carrierString;
+		private string _extractString;
+		private string _outputMessageFilepath;
 		private String inputPathBMP;
 		private String targetPathBMP;
 		private String ExtractPathBMP;
@@ -36,8 +31,10 @@ namespace gui
 		{
 			InitializeComponent();
 			MakeAudioHidden();
+			BtnEncrypt.IsEnabled = false;
+			BtnExtract.IsEnabled = false;
+			BtnOpenMessageFile.IsEnabled = false;
 		}
-
 		private void BtnOpenFile_Click(object sender, RoutedEventArgs e)
 		{
 
@@ -46,27 +43,40 @@ namespace gui
 			Nullable<bool> result = dialog.ShowDialog();
 			if (result == true)
 			{
-                _messageString = dialog.FileName;
-				TxtFileToHide.Text = dialog.SafeFileName;
+				_messageString = dialog.FileName;
+				TxtFileToHide.Text = dialog.FileName;
+				EnableEncryptButton();
 			}
 		}
-		
-        private void BtnOpenFileMessageCarrier_Click(object sender, RoutedEventArgs e)
-        {
-            OpenFileDialog dialog = new OpenFileDialog();
-            dialog.Filter = "Audio files (*.wav)|*.wav|Image Files(*.BMP;*.JPG;*.GIF)|*.BMP;*.JPG;*.GIF";
-            Nullable<bool> result = dialog.ShowDialog();
-            if (result == true)
-            {
-                _carrierString = dialog.FileName;
-                TxtFileCarrier.Text = dialog.FileName;
+		private void BtnOpenFileMessageCarrier_Click(object sender, RoutedEventArgs e)
+		{
+			OpenFileDialog dialog = new OpenFileDialog();
+			dialog.Filter = "Audio files (*.wav)|*.wav";
+			Nullable<bool> result = dialog.ShowDialog();
+			if (result == true)
+			{
+				_carrierString = dialog.FileName;
+				TxtFileCarrier.Text = dialog.FileName;
+				EnableEncryptButton();
+				LblOriginalAudio.Content = dialog.SafeFileName;
+				
 
-	            LblOriginalAudio.Content = dialog.SafeFileName;
-                AudioPlayer.InitializeMedia(_carrierString);
+			}
+		}
 
-            }
-        }
-private void BtnEncrypt_Click(object sender, RoutedEventArgs e)
+		private void EnableEncryptButton()
+		{
+			if (_carrierString != null && _messageString != null)
+			{
+				BtnEncrypt.IsEnabled = true;
+			}
+			else
+			{
+				BtnEncrypt.IsEnabled = false;
+			}
+		}
+
+		private void BtnEncrypt_Click(object sender, RoutedEventArgs e)
 		{
 			SaveFileDialog sdialog = new SaveFileDialog();
 			sdialog.Filter = "Audio files (*.wav)|*.wav";
@@ -78,6 +88,7 @@ private void BtnEncrypt_Click(object sender, RoutedEventArgs e)
 					byte[] encryptedWavFile = SteganoWav.Embed(_carrierString, _messageString);
 					File.WriteAllBytes(sdialog.FileName, encryptedWavFile);
 					AudioPlayer2.InitializeMedia(sdialog.FileName);
+					AudioPlayer.InitializeMedia(_carrierString);
 					LblEncryptedAudio.Content = sdialog.SafeFileName;
 					MakeAudioVisible();
 				}
@@ -91,24 +102,33 @@ private void BtnEncrypt_Click(object sender, RoutedEventArgs e)
 			}
 		}
 
-	    private void MakeAudioVisible()
-	    {
-		    LblEncryptedAudio.Visibility = Visibility.Visible;
-		    LblOriginalAudio.Visibility = Visibility.Visible;
-		    AudioPlayer.Visibility = Visibility.Visible;
-		    AudioPlayer2.Visibility = Visibility.Visible;
-		    AudioRectangle.Visibility = Visibility.Visible;
+		private void MakeAudioVisible()
+		{
+			LblEncryptedAudio.Visibility = Visibility.Visible;
+			LblOriginalAudio.Visibility = Visibility.Visible;
+			AudioPlayerLabel.Visibility = Visibility.Visible;
+			AudioPlayer.Visibility = Visibility.Visible;
+			AudioPlayer2.Visibility = Visibility.Visible;
+			AudioRectangle.Visibility = Visibility.Visible;
+			CloseMediaButton.Visibility = Visibility.Visible;
+			BtnEncrypt.IsEnabled = false;
+			BtnEncrypt.ToolTip = "Cannot encrypt while AudioPlayer is open"; 
 
-	    }
+		}
 
-	    private void MakeAudioHidden()
-	    {
-		    LblEncryptedAudio.Visibility = Visibility.Hidden;
-		    LblOriginalAudio.Visibility = Visibility.Hidden;
-		    AudioPlayer.Visibility = Visibility.Hidden;
+		private void MakeAudioHidden()
+		{
+			LblEncryptedAudio.Visibility = Visibility.Hidden;
+			LblOriginalAudio.Visibility = Visibility.Hidden;
+			AudioPlayerLabel.Visibility = Visibility.Hidden;
+			AudioPlayer.Visibility = Visibility.Hidden;
 			AudioPlayer2.Visibility = Visibility.Hidden;
 			AudioRectangle.Visibility = Visibility.Hidden;
-	    }
+			CloseMediaButton.Visibility = Visibility.Hidden;
+			BtnEncrypt.IsEnabled = true;
+			BtnEncrypt.ToolTip = "Click to encrypt";
+			
+		}
 
 		private void BtnOpenFileExtractCarrier_Click(object sender, RoutedEventArgs e)
 		{
@@ -119,6 +139,7 @@ private void BtnEncrypt_Click(object sender, RoutedEventArgs e)
 			{
 				_extractString = dialog.FileName;
 				TxtFileCarrierExtract.Text = _extractString;
+				BtnExtract.IsEnabled = true;
 			}
 
 		}
@@ -136,7 +157,7 @@ private void BtnEncrypt_Click(object sender, RoutedEventArgs e)
 			{
 				_outputMessageFilepath = sDialog.FileName + "." + extention;
 				File.WriteAllBytes(_outputMessageFilepath,resultMessage);
-				MessageBox.Show(_outputMessageFilepath);
+				BtnOpenMessageFile.IsEnabled = true;
 			}
 		}
 
@@ -145,7 +166,14 @@ private void BtnEncrypt_Click(object sender, RoutedEventArgs e)
 			System.Diagnostics.Process.Start(_outputMessageFilepath);
 		}
 
-		private void BtnOpenInputBMP_Click(object sender, RoutedEventArgs e)
+private void CloseMediaButton_Click(object sender, RoutedEventArgs e)
+		{
+			AudioPlayer.CloseMedia();
+			AudioPlayer2.CloseMedia();
+			MakeAudioHidden();
+		}
+		
+private void BtnOpenInputBMP_Click(object sender, RoutedEventArgs e)
 		{
 			OpenFileDialog dialog = new OpenFileDialog();
 			dialog.Filter = "Text files (*.txt)|*.txt|All files (*.*)|*.*";
@@ -352,3 +380,4 @@ private void BtnEncrypt_Click(object sender, RoutedEventArgs e)
 		}
 	}
 }
+
