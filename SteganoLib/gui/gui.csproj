@@ -61,7 +61,7 @@
     <Compile Include="UCaudioPlayer.xaml.cs">
       <DependentUpon>UCaudioPlayer.xaml</DependentUpon>
     </Compile>
-    <Page Include="Dictionary1.xaml">
+    <Page Include="ResDict.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
