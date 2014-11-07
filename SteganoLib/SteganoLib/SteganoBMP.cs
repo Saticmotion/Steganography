@@ -15,7 +15,7 @@ namespace SteganoLib
 		public const int FILE_LENGTH_OFFSET = 0;
 
 		//24 bits in three bytes. Our entension is always three characters
-		public const int FILE_EXT_LENGTH = 24;
+		public const int FILE_EXT_LENGTH = 40;
 		public const int FILE_EXT_OFFSET = FILE_LENGTH_LENGTH;
 
 		public const int FILE_OFFSET = FILE_EXT_OFFSET +  FILE_EXT_LENGTH;
@@ -85,6 +85,7 @@ namespace SteganoLib
 		//Write the extension of the file to the image
 		unsafe private static void WriteFileExtension(BitmapData bmpData, string extension)
 		{
+			extension = extension.PadRight(5, ' ');
 			//Convert extension to its UTF-8 representation.
 			byte[] extensionBytes = System.Text.Encoding.UTF8.GetBytes(extension);
 
@@ -186,8 +187,8 @@ namespace SteganoLib
 		{
 			byte* ptr = (byte*)bmpData.Scan0;
 
-			//byte[3] because we know the extension will always be three characters long.
-			byte[] extension = new byte[3];
+			//byte[5] because we know the extension will always be five characters long.
+			byte[] extension = new byte[5];
 
 			for (int i = 0; i < FILE_EXT_LENGTH / 8; i++)
 			{
@@ -201,8 +202,9 @@ namespace SteganoLib
 					extension[i] = (byte)(extension[i] & ~1 | Helper.GetBitAsByte(ptr[index], 0));
 				}
 			}
+			string ext = System.Text.Encoding.UTF8.GetString(extension).Trim();;
 
-			return System.Text.Encoding.UTF8.GetString(extension);
+			return ext;
 		}
 
 		//Extract the file from the image

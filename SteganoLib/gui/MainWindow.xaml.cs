@@ -59,8 +59,6 @@ namespace gui
 				TxtFileCarrier.Text = dialog.FileName;
 				EnableEncryptButton();
 				LblOriginalAudio.Content = dialog.SafeFileName;
-				
-
 			}
 		}
 
@@ -112,8 +110,7 @@ namespace gui
 			AudioRectangle.Visibility = Visibility.Visible;
 			CloseMediaButton.Visibility = Visibility.Visible;
 			BtnEncrypt.IsEnabled = false;
-			BtnEncrypt.ToolTip = "Cannot encrypt while AudioPlayer is open"; 
-
+			BtnEncrypt.ToolTip = "Cannot encrypt while AudioPlayer is open";
 		}
 
 		private void MakeAudioHidden()
@@ -127,7 +124,6 @@ namespace gui
 			CloseMediaButton.Visibility = Visibility.Hidden;
 			BtnEncrypt.IsEnabled = true;
 			BtnEncrypt.ToolTip = "Click to encrypt";
-			
 		}
 
 		private void BtnOpenFileExtractCarrier_Click(object sender, RoutedEventArgs e)
@@ -166,14 +162,14 @@ namespace gui
 			System.Diagnostics.Process.Start(_outputMessageFilepath);
 		}
 
-private void CloseMediaButton_Click(object sender, RoutedEventArgs e)
+		private void CloseMediaButton_Click(object sender, RoutedEventArgs e)
 		{
 			AudioPlayer.CloseMedia();
 			AudioPlayer2.CloseMedia();
 			MakeAudioHidden();
 		}
 		
-private void BtnOpenInputBMP_Click(object sender, RoutedEventArgs e)
+		private void BtnOpenInputBMP_Click(object sender, RoutedEventArgs e)
 		{
 			OpenFileDialog dialog = new OpenFileDialog();
 			dialog.Filter = "Text files (*.txt)|*.txt|All files (*.*)|*.*";
@@ -371,7 +367,7 @@ private void BtnOpenInputBMP_Click(object sender, RoutedEventArgs e)
 
 				byte[] extracted = SteganoBMP.Extract(ExtractPathBMP, out extension);
 				
-				string savePath = ExtractTargetPathBMP + "Extracted." + extension;
+				string savePath = ExtractTargetPathBMP + "\\Extracted." + extension;
 
 				File.WriteAllBytes(savePath, extracted);
 
