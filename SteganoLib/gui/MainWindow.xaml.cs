@@ -35,6 +35,8 @@ namespace gui
         private String keyFile;
         private String desTargetPathBMP;
         private String desTargetPathBMPExtract;
+        private String desTargetPathWAV;
+        private String desTargetPathWAVExtract;
 
 		public MainWindow()
 		{
@@ -181,26 +183,33 @@ private void BtnEncrypt_Click(object sender, RoutedEventArgs e)
 		{
 			if (targetPathBMP != "" && inputPathBMP != "")
 			{
-				Bitmap embedded = SteganoBMP.Embed(targetPathBMP, inputPathBMP);
+                try
+                {
+                    Bitmap embedded = SteganoBMP.Embed(targetPathBMP, inputPathBMP);
 
-				SaveFileDialog save = new SaveFileDialog();
-				save.Filter = "Bitmap Image (.bmp)|*.bmp|Png Image (.png)|*.png";
+                    SaveFileDialog save = new SaveFileDialog();
+                    save.Filter = "Bitmap Image (.bmp)|*.bmp|Png Image (.png)|*.png";
 
-				bool? result = save.ShowDialog();
+                    bool? result = save.ShowDialog();
 
-				if (result == true)
-				{
-					string savePath = save.FileName;
+                    if (result == true)
+                    {
+                        string savePath = save.FileName;
 
-					EncoderParameters encoderParams = new EncoderParameters(1);
-					EncoderParameter encoderP = new EncoderParameter(Encoder.Quality, 100L);
-					encoderParams.Param[0] = encoderP;
+                        EncoderParameters encoderParams = new EncoderParameters(1);
+                        EncoderParameter encoderP = new EncoderParameter(Encoder.Quality, 100L);
+                        encoderParams.Param[0] = encoderP;
 
-					embedded.Save(savePath, GetEncoder(savePath.Split('.').Last()), encoderParams);
+                        embedded.Save(savePath, GetEncoder(savePath.Split('.').Last()), encoderParams);
 
-					embedded.Dispose();
-					showImages(targetPathBMP, savePath);
-				}
+                        embedded.Dispose();
+                        showImages(targetPathBMP, savePath);
+                    }
+                }
+                catch (FileTooLargeException fileTooLargeException)
+                {
+                    MessageBox.Show(fileTooLargeException.Message);
+                }
 			}
 		}
 
@@ -418,7 +427,7 @@ private void BtnEncrypt_Click(object sender, RoutedEventArgs e)
                 }
                 catch (java.io.IOException ex)
                 {
-                    string error = ex.getMessage();
+                    String error = ex.getMessage();
                     MessageBox.Show(error);
                 }
             }
@@ -460,7 +469,7 @@ private void BtnEncrypt_Click(object sender, RoutedEventArgs e)
                         if (Encryption.encrypt(encryptionFile, "encryptForBMP", keyFile, EncryptionMode.ENCRYPT) == java.lang.Boolean.TRUE)
                         {
                             Bitmap embedded = SteganoBMP.Embed(desTargetPathBMP, "encryptForBMP.des");
-                            string savePath = save.FileName;
+                            String savePath = save.FileName;
 
                             EncoderParameters encoderParams = new EncoderParameters(1);
                             EncoderParameter encoderP = new EncoderParameter(Encoder.Quality, 100L);
@@ -476,10 +485,18 @@ private void BtnEncrypt_Click(object sender, RoutedEventArgs e)
                     }
                     catch (java.io.IOException ex)
                     {
-                        string error = ex.getMessage();
+                        String error = ex.getMessage();
                         MessageBox.Show(error);
                     }
+                    catch (FileTooLargeException fileTooLargeException)
+                    {
+                        MessageBox.Show(fileTooLargeException.Message);
+                    }
                 }
+            }
+            else
+            {
+                MessageBox.Show("Please select a valid image file");
             }
         }
 
@@ -510,7 +527,7 @@ private void BtnEncrypt_Click(object sender, RoutedEventArgs e)
                 if (result == true)
                 {
 
-                    string extension;
+                    String extension;
                     byte[] extracted = SteganoBMP.Extract(desTargetPathBMPExtract, out extension);
                     string savePath = "extractedMessage." + extension;
                     File.WriteAllBytes(savePath, extracted);
@@ -530,10 +547,133 @@ private void BtnEncrypt_Click(object sender, RoutedEventArgs e)
                     }
                     catch (java.io.IOException ex)
                     {
-                        string error = ex.getMessage();
+                        String error = ex.getMessage();
                         MessageBox.Show(error);
                     }
                 }
+            }
+            else
+            {
+                MessageBox.Show("Please select a valid image file");
+            }
+        }
+
+        private void btnDesWAV_Click(object sender, RoutedEventArgs e)
+        {
+            OpenFileDialog dialog = new OpenFileDialog();
+            dialog.Filter = "Audio files (*.wav)|*.wav";
+            dialog.Multiselect = false;
+            Nullable<bool> result = dialog.ShowDialog();
+            if (result == true)
+            {
+                desTargetPathWAV = dialog.FileName;
+                txtDesWAV.Text = desTargetPathWAV;
+            }
+        }
+
+        private void btnDesWAVExtract_Click(object sender, RoutedEventArgs e)
+        {
+            OpenFileDialog dialog = new OpenFileDialog();
+            dialog.Filter = "Audio files (*.wav)|*.wav";
+            dialog.Multiselect = false;
+            Nullable<bool> result = dialog.ShowDialog();
+            if (result == true)
+            {
+                desTargetPathWAVExtract = dialog.FileName;
+                txtDesWAVExtract.Text = desTargetPathWAVExtract;
+            }
+        }
+
+        private void btnDesOutputWAV_Click(object sender, RoutedEventArgs e)
+        {
+            desTargetPathWAV = txtDesWAV.Text;
+            if (!desTargetPathWAV.Equals(""))
+            {
+                SaveFileDialog save = new SaveFileDialog();
+                save.Filter = "Audio files (*.wav)|*.wav";
+
+                bool? result = save.ShowDialog();
+
+                if (result == true)
+                {
+
+                    java.lang.Class clazz = typeof(Encryption);
+                    java.lang.Thread.currentThread().setContextClassLoader(clazz.getClassLoader());
+
+                    String outputFile = save.FileName;
+                    try
+                    {
+                        if (Encryption.encrypt(encryptionFile, "encryptForWAV", keyFile, EncryptionMode.ENCRYPT) == java.lang.Boolean.TRUE)
+                        {
+                            String savePath = save.FileName;
+
+                            byte[] encryptedWavFile = SteganoWav.Embed(desTargetPathWAV, "encryptForWAV.des");
+                            File.WriteAllBytes(savePath, encryptedWavFile);
+
+                            File.Delete("encryptForWAV.des");
+                            MessageBox.Show("File successfully encrypted to audio file");
+                        }
+
+                    }
+                    catch (java.io.IOException ex)
+                    {
+                        String error = ex.getMessage();
+                        MessageBox.Show(error);
+                    }
+                    catch (FileTooLargeException fileTooLargeException)
+                    {
+                        MessageBox.Show(fileTooLargeException.Message);
+                    }
+                }
+            }
+            else
+            {
+                MessageBox.Show("Please select a valid audio file");
+            }
+        }
+
+        private void btnDesOutputWAVExtract_Click(object sender, RoutedEventArgs e)
+        {
+            desTargetPathWAVExtract = txtDesWAVExtract.Text;
+            if (!desTargetPathWAVExtract.Equals(""))
+            {
+                SaveFileDialog save = new SaveFileDialog();
+                save.Filter = "All files (*.*)|*.*";
+
+                bool? result = save.ShowDialog();
+
+                if (result == true)
+                {
+
+                    byte[] extracted = SteganoWav.Extract(desTargetPathWAVExtract);
+                    String extension= SteganoWav.Extention;
+
+                    string savePath = "extractedMessage." + extension;
+                    File.WriteAllBytes(savePath, extracted);
+
+                    java.lang.Class clazz = typeof(Encryption);
+                    java.lang.Thread.currentThread().setContextClassLoader(clazz.getClassLoader());
+
+                    String outputFile = save.FileName;
+                    try
+                    {
+                        if (Encryption.encrypt("extractedMessage.des", outputFile, keyFile, EncryptionMode.DECRYPT) == java.lang.Boolean.TRUE)
+                        {
+                            File.Delete("extractedMessage.des");
+                            MessageBox.Show("File successfully decrypted from audio file");
+                        }
+
+                    }
+                    catch (java.io.IOException ex)
+                    {
+                        String error = ex.getMessage();
+                        MessageBox.Show(error);
+                    }
+                }
+            }
+            else
+            {
+                MessageBox.Show("Please select a valid audio file");
             }
         }
 	}
