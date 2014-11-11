@@ -12,15 +12,23 @@
         <TabControl HorizontalAlignment="Stretch" Margin="10" VerticalAlignment="Stretch" TabStripPlacement="Top" BorderThickness="0">
             <TabItem Header="DES" x:Name="Test" FontWeight="Thin">
                 <Grid>
-                    <Label Content="File to encrypt:" HorizontalAlignment="Left" Margin="27,37,0,0" VerticalAlignment="Top" Height="30"/>
-                    <Label Content="Keyfile:" HorizontalAlignment="Left" Margin="27,80,0,0" VerticalAlignment="Top" Height="30"/>
-                    <TextBox Name="txtEncryptFile" HorizontalAlignment="Left" Height="30" Margin="129,37,0,0" TextWrapping="Wrap" VerticalAlignment="Top" SelectionBrush="#FFFFAC33" BorderBrush="#FF3399FF" FontWeight="Thin" Width="418"/>
-                    <TextBox Name="txtKeyFile" HorizontalAlignment="Left" Height="30" Margin="129,80,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="418" SelectionBrush="#FFFFAC33" BorderBrush="#FF3399FF" FontWeight="Thin"/>
+                    <Label Content="File to encrypt:" HorizontalAlignment="Left" Margin="10,37,0,0" VerticalAlignment="Top" Height="30"/>
+                    <Label Content="Keyfile:" HorizontalAlignment="Left" Margin="10,80,0,0" VerticalAlignment="Top" Height="30"/>
+                    <TextBox Name="txtEncryptFile" HorizontalAlignment="Left" Height="30" Margin="129,37,0,0" TextWrapping="Wrap" VerticalAlignment="Top" SelectionBrush="#FFFFAC33" BorderBrush="#FF3399FF" FontWeight="Thin" Width="418" Padding="6" IsReadOnly="True"/>
+                    <TextBox Name="txtKeyFile" HorizontalAlignment="Left" Height="30" Margin="129,80,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="418" SelectionBrush="#FFFFAC33" BorderBrush="#FF3399FF" FontWeight="Thin" Padding="6" IsReadOnly="True"/>
                     <Button Name="btnEncryptFile" Content="Open" HorizontalAlignment="Left" Margin="573,37,0,0" VerticalAlignment="Top" Width="75" Height="30" Background="#FF3399FF" BorderBrush="{x:Null}" Foreground="White" FontWeight="Thin" Click="btnEncryptFile_Click"/>
                     <Button Name="btnKeyFile" Content="Open" HorizontalAlignment="Left" Margin="573,80,0,0" VerticalAlignment="Top" Width="75" Height="30" Background="#FF3399FF" BorderBrush="{x:Null}" Foreground="White" FontWeight="Thin" Click="btnKeyFile_Click"/>
                     <Button Name="btnOutputFile" Content="Save" HorizontalAlignment="Left" Margin="573,118,0,0" VerticalAlignment="Top" Width="75" Height="30" Background="#FF3399FF" BorderBrush="{x:Null}" Foreground="White" FontWeight="Thin" Click="btnOutputFile_Click"/>
                     <RadioButton Name="rdbEncrypt"  GroupName="mode" Content="Encrypt" HorizontalAlignment="Left" Margin="129,126,0,0" VerticalAlignment="Top" IsChecked="True"/>
                     <RadioButton Name="rdbDecrypt" GroupName="mode" Content="Decrypt" HorizontalAlignment="Left" Margin="206,126,0,0" VerticalAlignment="Top"/>
+                    <TextBox Name="txtDesBitmap" HorizontalAlignment="Left" Height="30" Margin="129,201,0,0" TextWrapping="Wrap" VerticalAlignment="Top" SelectionBrush="#FFFFAC33" BorderBrush="#FF3399FF" FontWeight="Thin" Width="418" Padding="6" IsReadOnly="True"/>
+                    <Label Content="Save to Bitmap:" HorizontalAlignment="Left" Margin="10,201,0,0" VerticalAlignment="Top" Height="38"/>
+                    <Button Name="btnDesBitmap" Content="Open" HorizontalAlignment="Left" Margin="573,199,0,0" VerticalAlignment="Top" Width="75" Height="30" Background="#FF3399FF" BorderBrush="{x:Null}" Foreground="White" FontWeight="Thin" Click="btnDesBitmap_Click"/>
+                    <Button Name="btnDesOutputBitmap" Content="Save" HorizontalAlignment="Left" Margin="573,237,0,0" VerticalAlignment="Top" Width="75" Height="30" Background="#FF3399FF" BorderBrush="{x:Null}" Foreground="White" FontWeight="Thin" Click="btnDesOutputBitmap_Click"/>
+                    <TextBox x:Name="txtDesBitmapExtract" HorizontalAlignment="Left" Height="30" Margin="129,318,0,0" TextWrapping="Wrap" VerticalAlignment="Top" SelectionBrush="#FFFFAC33" BorderBrush="#FF3399FF" FontWeight="Thin" Width="418" Padding="6" IsReadOnly="True"/>
+                    <Label Content="Extract from Bitmap:" HorizontalAlignment="Left" Margin="10,318,0,0" VerticalAlignment="Top" Height="38"/>
+                    <Button x:Name="btnDesBitmapExtract" Content="Open" HorizontalAlignment="Left" Margin="573,316,0,0" VerticalAlignment="Top" Width="75" Height="30" Background="#FF3399FF" BorderBrush="{x:Null}" Foreground="White" FontWeight="Thin" Click="btnDesBitmapExtract_Click"/>
+                    <Button x:Name="btnDesOutputBitmapExtract" Content="Save" HorizontalAlignment="Left" Margin="573,354,0,0" VerticalAlignment="Top" Width="75" Height="30" Background="#FF3399FF" BorderBrush="{x:Null}" Foreground="White" FontWeight="Thin" Click="btnDesOutputBitmapExtract_Click"/>
                 </Grid>
 
             </TabItem>

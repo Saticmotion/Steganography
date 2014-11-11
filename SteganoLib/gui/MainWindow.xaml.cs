@@ -31,9 +31,10 @@ namespace gui
 		private String targetPathBMP;
 		private String ExtractPathBMP;
 		private String ExtractTargetPathBMP;
-        private String encryptionFile="";
-        private String keyFile="";
-		
+        private String encryptionFile;
+        private String keyFile;
+        private String desTargetPathBMP;
+        private String desTargetPathBMPExtract;
 
 		public MainWindow()
 		{
@@ -333,7 +334,7 @@ private void BtnEncrypt_Click(object sender, RoutedEventArgs e)
 				if (result == Forms.DialogResult.OK)
 				{
 					ExtractTargetPathBMP = dialog.SelectedPath;
-					TxtExtractTarget.Text = ExtractPathBMP;
+                    TxtExtractTarget.Text = ExtractTargetPathBMP;
 				}
 			}
 		}
@@ -346,7 +347,7 @@ private void BtnEncrypt_Click(object sender, RoutedEventArgs e)
 
 				byte[] extracted = SteganoBMP.Extract(ExtractPathBMP, out extension);
 				
-				string savePath = ExtractTargetPathBMP + "Extracted." + extension;
+				string savePath = ExtractTargetPathBMP + "\\Extracted." + extension;
 
 				File.WriteAllBytes(savePath, extracted);
 
@@ -384,6 +385,8 @@ private void BtnEncrypt_Click(object sender, RoutedEventArgs e)
 
         private void btnOutputFile_Click(object sender, RoutedEventArgs e)
         {
+            encryptionFile = txtEncryptFile.Text;
+            keyFile = txtKeyFile.Text;
             SaveFileDialog dialog = new SaveFileDialog();
             dialog.OverwritePrompt = true;
             
@@ -417,6 +420,119 @@ private void BtnEncrypt_Click(object sender, RoutedEventArgs e)
                 {
                     string error = ex.getMessage();
                     MessageBox.Show(error);
+                }
+            }
+        }
+
+        private void btnDesBitmap_Click(object sender, RoutedEventArgs e)
+        {
+            OpenFileDialog dialog = new OpenFileDialog();
+            dialog.Filter = "Bitmap Image (.bmp)|*.bmp|Png Image (.png)|*.png";
+            dialog.Multiselect = false;
+            bool? result = dialog.ShowDialog();
+
+            if (result == true)
+            {
+                desTargetPathBMP = dialog.FileName;
+                txtDesBitmap.Text = desTargetPathBMP;
+            }
+        }
+
+        private void btnDesOutputBitmap_Click(object sender, RoutedEventArgs e)
+        {
+            desTargetPathBMP = txtDesBitmap.Text;
+            if (!desTargetPathBMP.Equals(""))
+            {
+                SaveFileDialog save = new SaveFileDialog();
+                save.Filter = "Bitmap Image (.bmp)|*.bmp|Png Image (.png)|*.png";
+
+                bool? result = save.ShowDialog();
+
+                if (result == true)
+                {
+
+                    java.lang.Class clazz = typeof(Encryption);
+                    java.lang.Thread.currentThread().setContextClassLoader(clazz.getClassLoader());
+
+                    String outputFile = save.FileName;
+                    try
+                    {
+                        if (Encryption.encrypt(encryptionFile, "encryptForBMP", keyFile, EncryptionMode.ENCRYPT) == java.lang.Boolean.TRUE)
+                        {
+                            Bitmap embedded = SteganoBMP.Embed(desTargetPathBMP, "encryptForBMP.des");
+                            string savePath = save.FileName;
+
+                            EncoderParameters encoderParams = new EncoderParameters(1);
+                            EncoderParameter encoderP = new EncoderParameter(Encoder.Quality, 100L);
+                            encoderParams.Param[0] = encoderP;
+
+                            embedded.Save(savePath, GetEncoder(savePath.Split('.').Last()), encoderParams);
+
+                            embedded.Dispose();
+                            File.Delete("encryptForBMP.des");
+                            MessageBox.Show("File successfully encrypted to image file");
+                        }
+                            
+                    }
+                    catch (java.io.IOException ex)
+                    {
+                        string error = ex.getMessage();
+                        MessageBox.Show(error);
+                    }
+                }
+            }
+        }
+
+        private void btnDesBitmapExtract_Click(object sender, RoutedEventArgs e)
+        {
+            OpenFileDialog dialog = new OpenFileDialog();
+            dialog.Filter = "Bitmap Image (.bmp)|*.bmp|Png Image (.png)|*.png";
+            dialog.Multiselect = false;
+            bool? result = dialog.ShowDialog();
+
+            if (result == true)
+            {
+                desTargetPathBMPExtract = dialog.FileName;
+                txtDesBitmapExtract.Text = desTargetPathBMPExtract;
+            }
+        }
+
+        private void btnDesOutputBitmapExtract_Click(object sender, RoutedEventArgs e)
+        {
+            desTargetPathBMPExtract = txtDesBitmapExtract.Text;
+            if (!desTargetPathBMPExtract.Equals(""))
+            {   
+                SaveFileDialog save = new SaveFileDialog();
+                save.Filter = "All files (*.*)|*.*";
+
+                bool? result = save.ShowDialog();
+
+                if (result == true)
+                {
+
+                    string extension;
+                    byte[] extracted = SteganoBMP.Extract(desTargetPathBMPExtract, out extension);
+                    string savePath = "extractedMessage." + extension;
+                    File.WriteAllBytes(savePath, extracted);
+
+                    java.lang.Class clazz = typeof(Encryption);
+                    java.lang.Thread.currentThread().setContextClassLoader(clazz.getClassLoader());
+
+                    String outputFile = save.FileName;
+                    try
+                    {
+                        if (Encryption.encrypt("extractedMessage.des", outputFile, keyFile, EncryptionMode.DECRYPT) == java.lang.Boolean.TRUE)
+                        {
+                            File.Delete("extractedMessage.des");
+                            MessageBox.Show("File successfully decrypted from image file");
+                        }
+
+                    }
+                    catch (java.io.IOException ex)
+                    {
+                        string error = ex.getMessage();
+                        MessageBox.Show(error);
+                    }
                 }
             }
         }
