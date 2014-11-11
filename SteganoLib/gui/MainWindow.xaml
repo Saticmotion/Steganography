@@ -8,25 +8,35 @@
         <ResourceDictionary Source="ResDict.xaml">
         </ResourceDictionary>
     </Window.Resources>
-	<Grid>
-		<TabControl HorizontalAlignment="Stretch" Margin="10" VerticalAlignment="Stretch" TabStripPlacement="Top" BorderThickness="0">
-			<TabItem Header="DES" x:Name="Test" FontWeight="Thin">
-				<Grid Background="#FFE5E5E5"/>
+    <Grid>
+        <TabControl HorizontalAlignment="Stretch" Margin="10" VerticalAlignment="Stretch" TabStripPlacement="Top" BorderThickness="0">
+            <TabItem Header="DES" x:Name="Test" FontWeight="Thin">
+                <Grid>
+                    <Label Content="File to encrypt:" HorizontalAlignment="Left" Margin="27,37,0,0" VerticalAlignment="Top" Height="30"/>
+                    <Label Content="Keyfile:" HorizontalAlignment="Left" Margin="27,80,0,0" VerticalAlignment="Top" Height="30"/>
+                    <TextBox Name="txtEncryptFile" HorizontalAlignment="Left" Height="30" Margin="129,37,0,0" TextWrapping="Wrap" VerticalAlignment="Top" SelectionBrush="#FFFFAC33" BorderBrush="#FF3399FF" FontWeight="Thin" Width="418"/>
+                    <TextBox Name="txtKeyFile" HorizontalAlignment="Left" Height="30" Margin="129,80,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="418" SelectionBrush="#FFFFAC33" BorderBrush="#FF3399FF" FontWeight="Thin"/>
+                    <Button Name="btnEncryptFile" Content="Open" HorizontalAlignment="Left" Margin="573,37,0,0" VerticalAlignment="Top" Width="75" Height="30" Background="#FF3399FF" BorderBrush="{x:Null}" Foreground="White" FontWeight="Thin" Click="btnEncryptFile_Click"/>
+                    <Button Name="btnKeyFile" Content="Open" HorizontalAlignment="Left" Margin="573,80,0,0" VerticalAlignment="Top" Width="75" Height="30" Background="#FF3399FF" BorderBrush="{x:Null}" Foreground="White" FontWeight="Thin" Click="btnKeyFile_Click"/>
+                    <Button Name="btnOutputFile" Content="Save" HorizontalAlignment="Left" Margin="573,118,0,0" VerticalAlignment="Top" Width="75" Height="30" Background="#FF3399FF" BorderBrush="{x:Null}" Foreground="White" FontWeight="Thin" Click="btnOutputFile_Click"/>
+                    <RadioButton Name="rdbEncrypt"  GroupName="mode" Content="Encrypt" HorizontalAlignment="Left" Margin="129,126,0,0" VerticalAlignment="Top" IsChecked="True"/>
+                    <RadioButton Name="rdbDecrypt" GroupName="mode" Content="Decrypt" HorizontalAlignment="Left" Margin="206,126,0,0" VerticalAlignment="Top"/>
+                </Grid>
 
-			</TabItem>
-			<TabItem Header="Steganografie WAV" FontWeight="Thin">
-				<Grid  Margin="0,13,0,13">
-					<Grid.ColumnDefinitions>
+            </TabItem>
+            <TabItem Header="Steganografie WAV" FontWeight="Thin">
+                <Grid  Margin="0,13,0,13">
+                    <Grid.ColumnDefinitions>
 
-						<ColumnDefinition Width="*"></ColumnDefinition>
-						<ColumnDefinition Width="2*"></ColumnDefinition>
-						<ColumnDefinition Width="*"></ColumnDefinition>
-                        <ColumnDefinition Width="0.25*"></ColumnDefinition>
-						<ColumnDefinition Width="2*"></ColumnDefinition>
+                        <ColumnDefinition Width="*"></ColumnDefinition>
                         <ColumnDefinition Width="2*"></ColumnDefinition>
-					</Grid.ColumnDefinitions>
-					<Grid.RowDefinitions>
-						<RowDefinition Height ="10"></RowDefinition>
+                        <ColumnDefinition Width="*"></ColumnDefinition>
+                        <ColumnDefinition Width="0.25*"></ColumnDefinition>
+                        <ColumnDefinition Width="2*"></ColumnDefinition>
+                        <ColumnDefinition Width="2*"></ColumnDefinition>
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height ="10"></RowDefinition>
                         <RowDefinition MinHeight="35" MaxHeight="40" Height="8*"></RowDefinition>
                         <RowDefinition MinHeight="35" MaxHeight="40" Height="8*"></RowDefinition>
                         <RowDefinition MinHeight="35" MaxHeight="40" Height="8*"></RowDefinition>
@@ -41,7 +51,7 @@
                         <RowDefinition Height="8*"/>
                         <RowDefinition Height="8*"/>
 
-					</Grid.RowDefinitions>
+                    </Grid.RowDefinitions>
                     <Rectangle Grid.Column="0" Grid.Row="1" Grid.RowSpan="5"   Grid.ColumnSpan="3" Fill="White"/>
                     <Rectangle x:Name="AudioRectangle" Grid.Column="4" Grid.Row="1" Grid.RowSpan="5"   Grid.ColumnSpan="2" Fill="White"/>
                     <Rectangle Grid.Column="4" Grid.Row="7" Grid.RowSpan="4"   Grid.ColumnSpan="2" Fill="White"/>
@@ -84,75 +94,75 @@
                     <Label x:Name="LblOriginalAudio" Grid.Column="4" HorizontalAlignment="Left" Grid.Row="1" VerticalAlignment="Top" Margin="0,32,0,0" Grid.RowSpan="2"/>
                     <Label x:Name="LblEncryptedAudio" Grid.Column="4" HorizontalAlignment="Left" Margin="0,24,0,0" Grid.Row="3" VerticalAlignment="Top" Grid.RowSpan="2"/>
 
-				</Grid>
-			</TabItem>
-			<TabItem Header="Steganografie BMP" FontWeight="Thin">
-				<TabControl HorizontalAlignment="Stretch" Margin="10" VerticalAlignment="Stretch" TabStripPlacement="Top" BorderThickness="0">
-					<TabItem Header="Hide">
+                </Grid>
+            </TabItem>
+            <TabItem Header="Steganografie BMP" FontWeight="Thin">
+                <TabControl HorizontalAlignment="Stretch" Margin="10" VerticalAlignment="Stretch" TabStripPlacement="Top" BorderThickness="0">
+                    <TabItem Header="Hide">
 
-						<Grid>
-							<Grid.ColumnDefinitions>
+                        <Grid>
+                            <Grid.ColumnDefinitions>
 
 
-								<ColumnDefinition Width="*" MinWidth="70"/>
-								<ColumnDefinition Width="*"/>
-								<ColumnDefinition Width="4*"/>
-								<ColumnDefinition Width="2*"/>
-								<ColumnDefinition Width="4*"/>
-							</Grid.ColumnDefinitions>
-							<Grid.RowDefinitions>
-								<RowDefinition Height ="10"/>
-								<RowDefinition MinHeight="40" MaxHeight="40" Height="1*"/>
-								<RowDefinition MinHeight="40" MaxHeight="40" Height="1*"/>
-								<RowDefinition MinHeight="40" MaxHeight="40" Height="1*"/>
-								<RowDefinition MinHeight="35" Height="4*"/>
-							</Grid.RowDefinitions>
-							<Label Grid.Column="0" Grid.Row="1" Content="File to hide:"  FontWeight="Thin"/>
-							<TextBox Grid.Column="1" Grid.Row="1" Grid.ColumnSpan="2" x:Name="TxtFileToHideBMP" Height="30" Margin="0,5,0,5" SelectionBrush="#FFFFAC33" BorderBrush="#FF3399FF" FontWeight="Thin"/>
-							<Button Grid.Column="3" Grid.Row="1" Content="Open" x:Name="BtnOpenFile1"  HorizontalAlignment="Stretch" Margin="10,5,0,0" VerticalAlignment="Top" Height="30" Click="BtnOpenInputBMP_Click" Background="#FF3399FF" BorderBrush="{x:Null}" Foreground="White" FontWeight="Thin"/>
-							<Label Content="Carrier file:" Grid.Row="2" Height="30" FontWeight="Thin"/>
-							<TextBox x:Name="TxtFileTargetBMP" Grid.ColumnSpan="2" Height="30" Margin="0,5,0,5" Grid.Column="1" Grid.Row="2" BorderBrush="#FF3399FF" SelectionBrush="#FFFFAC33" FontWeight="Thin"/>
-							<Button Content="Open" x:Name="BtnOpenCarrier"  HorizontalAlignment="Stretch" Margin="10,5,0,0" VerticalAlignment="Top" Height="30" Click="BtnOpenTargetBMP_Click" Grid.Column="3" Grid.Row="2" Background="{DynamicResource {x:Static SystemColors.HighlightBrushKey}}" BorderBrush="{x:Null}" Foreground="White" FontWeight="Thin" />
-							<Button Content="Hide" x:Name="BtnHide"  HorizontalAlignment="Stretch" Margin="10,5,0,5" Click="BtnHideBMP_Click" Grid.Column="3" Grid.Row="3" Foreground="White" Background="{DynamicResource {x:Static SystemColors.HighlightBrushKey}}" BorderBrush="{x:Null}" Height="30" FontWeight="Thin" />
+                                <ColumnDefinition Width="*" MinWidth="70"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="4*"/>
+                                <ColumnDefinition Width="2*"/>
+                                <ColumnDefinition Width="4*"/>
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height ="10"/>
+                                <RowDefinition MinHeight="40" MaxHeight="40" Height="1*"/>
+                                <RowDefinition MinHeight="40" MaxHeight="40" Height="1*"/>
+                                <RowDefinition MinHeight="40" MaxHeight="40" Height="1*"/>
+                                <RowDefinition MinHeight="35" Height="4*"/>
+                            </Grid.RowDefinitions>
+                            <Label Grid.Column="0" Grid.Row="1" Content="File to hide:"  FontWeight="Thin"/>
+                            <TextBox Grid.Column="1" Grid.Row="1" Grid.ColumnSpan="2" x:Name="TxtFileToHideBMP" Height="30" Margin="0,5,0,5" SelectionBrush="#FFFFAC33" BorderBrush="#FF3399FF" FontWeight="Thin"/>
+                            <Button Grid.Column="3" Grid.Row="1" Content="Open" x:Name="BtnOpenFile1"  HorizontalAlignment="Stretch" Margin="10,5,0,0" VerticalAlignment="Top" Height="30" Click="BtnOpenInputBMP_Click" Background="#FF3399FF" BorderBrush="{x:Null}" Foreground="White" FontWeight="Thin"/>
+                            <Label Content="Carrier file:" Grid.Row="2" Height="30" FontWeight="Thin"/>
+                            <TextBox x:Name="TxtFileTargetBMP" Grid.ColumnSpan="2" Height="30" Margin="0,5,0,5" Grid.Column="1" Grid.Row="2" BorderBrush="#FF3399FF" SelectionBrush="#FFFFAC33" FontWeight="Thin"/>
+                            <Button Content="Open" x:Name="BtnOpenCarrier"  HorizontalAlignment="Stretch" Margin="10,5,0,0" VerticalAlignment="Top" Height="30" Click="BtnOpenTargetBMP_Click" Grid.Column="3" Grid.Row="2" Background="{DynamicResource {x:Static SystemColors.HighlightBrushKey}}" BorderBrush="{x:Null}" Foreground="White" FontWeight="Thin" />
+                            <Button Content="Hide" x:Name="BtnHide"  HorizontalAlignment="Stretch" Margin="10,5,0,5" Click="BtnHideBMP_Click" Grid.Column="3" Grid.Row="3" Foreground="White" Background="{DynamicResource {x:Static SystemColors.HighlightBrushKey}}" BorderBrush="{x:Null}" Height="30" FontWeight="Thin" />
 
-							<CheckBox x:Name="chkAmplify" Content="Amplify diff" HorizontalAlignment="Left" Margin="10,12,0,0" VerticalAlignment="Top" IsChecked="True" Grid.Column="4" Grid.Row="3"/>
-							<Grid Grid.Row="4" Grid.ColumnSpan="3">
-								<Image x:Name="OrigImg" Stretch="Uniform"/>
-							</Grid>
-							<Grid x:Name="___No_Name_" Grid.Row="4" Grid.Column="3" Grid.ColumnSpan="2">
-								<Image x:Name="DiffImg" Stretch="Uniform"/>
-							</Grid>
-						</Grid>
-					</TabItem>
-					<TabItem Header="Retrieve">
-						<Grid>
-							<Grid.ColumnDefinitions>
+                            <CheckBox x:Name="chkAmplify" Content="Amplify diff" HorizontalAlignment="Left" Margin="10,12,0,0" VerticalAlignment="Top" IsChecked="True" Grid.Column="4" Grid.Row="3"/>
+                            <Grid Grid.Row="4" Grid.ColumnSpan="3">
+                                <Image x:Name="OrigImg" Stretch="Uniform"/>
+                            </Grid>
+                            <Grid x:Name="___No_Name_" Grid.Row="4" Grid.Column="3" Grid.ColumnSpan="2">
+                                <Image x:Name="DiffImg" Stretch="Uniform"/>
+                            </Grid>
+                        </Grid>
+                    </TabItem>
+                    <TabItem Header="Retrieve">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
 
-								<ColumnDefinition Width="*" MinWidth="70"/>
-								<ColumnDefinition Width="*"/>
-								<ColumnDefinition Width="4*"/>
-								<ColumnDefinition Width="2*"/>
-								<ColumnDefinition Width="4*"/>
-							</Grid.ColumnDefinitions>
-							<Grid.RowDefinitions>
-								<RowDefinition Height ="10"/>
-								<RowDefinition MinHeight="40" MaxHeight="40" Height="1*"/>
-								<RowDefinition MinHeight="40" MaxHeight="40" Height="1*"/>
-								<RowDefinition MinHeight="40" MaxHeight="40" Height="1*"/>
-								<RowDefinition MinHeight="35" Height="4*"/>
-							</Grid.RowDefinitions>
-							<Label Grid.Column="0" Grid.Row="1" Content="File to extract:" FontWeight="Thin"/>
-							<TextBox Grid.Column="1" Grid.Row="1" Grid.ColumnSpan="2" x:Name="TxtFileToExtract" Height="30" Margin="0,5,0,5" SelectionBrush="#FFFFAC33" BorderBrush="#FF3399FF" FontWeight="Thin"/>
+                                <ColumnDefinition Width="*" MinWidth="70"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="4*"/>
+                                <ColumnDefinition Width="2*"/>
+                                <ColumnDefinition Width="4*"/>
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height ="10"/>
+                                <RowDefinition MinHeight="40" MaxHeight="40" Height="1*"/>
+                                <RowDefinition MinHeight="40" MaxHeight="40" Height="1*"/>
+                                <RowDefinition MinHeight="40" MaxHeight="40" Height="1*"/>
+                                <RowDefinition MinHeight="35" Height="4*"/>
+                            </Grid.RowDefinitions>
+                            <Label Grid.Column="0" Grid.Row="1" Content="File to extract:" FontWeight="Thin"/>
+                            <TextBox Grid.Column="1" Grid.Row="1" Grid.ColumnSpan="2" x:Name="TxtFileToExtract" Height="30" Margin="0,5,0,5" SelectionBrush="#FFFFAC33" BorderBrush="#FF3399FF" FontWeight="Thin"/>
 
-							<Button Grid.Column="3" Grid.Row="1" Content="Open" x:Name="BtnSelectCarrier"  HorizontalAlignment="Stretch" Margin="10,5,0,0" VerticalAlignment="Top" Height="30" Click="BtnSelectCarrier_Click" Background="#FF3399FF" BorderBrush="{x:Null}" Foreground="White" FontWeight="Thin"/>
-							<Label Content="Save location" Grid.Row="2" Height="30" FontWeight="Thin"/>
-							<TextBox x:Name="TxtExtractTarget" Grid.ColumnSpan="2" Height="30" Margin="0,5,0,5" Grid.Column="1" Grid.Row="2" BorderBrush="#FF3399FF" SelectionBrush="#FFFFAC33" FontWeight="Thin"/>
-							<Button Content="Open" x:Name="BtnSelectCarrierTarget"  HorizontalAlignment="Stretch" Margin="10,5,0,0" VerticalAlignment="Top" Height="30" Click="BtnSelectCarrierTarget_Click" Grid.Column="3" Grid.Row="2" Background="{DynamicResource {x:Static SystemColors.HighlightBrushKey}}" BorderBrush="{x:Null}" Foreground="White" FontWeight="Thin" />
-							<Button Content="Extract" x:Name="BtnSelectCarrierTarget_Copy"  HorizontalAlignment="Stretch" Margin="10,5,0,0" VerticalAlignment="Top" Height="30" Click="BtnExtractFromCarrier_Click" Grid.Column="3" Grid.Row="3" Background="{DynamicResource {x:Static SystemColors.HighlightBrushKey}}" BorderBrush="{x:Null}" Foreground="White" FontWeight="Thin" />
-						</Grid>
-					</TabItem>
-				</TabControl>
-			</TabItem>
-		</TabControl>
-	</Grid>
+                            <Button Grid.Column="3" Grid.Row="1" Content="Open" x:Name="BtnSelectCarrier"  HorizontalAlignment="Stretch" Margin="10,5,0,0" VerticalAlignment="Top" Height="30" Click="BtnSelectCarrier_Click" Background="#FF3399FF" BorderBrush="{x:Null}" Foreground="White" FontWeight="Thin"/>
+                            <Label Content="Save location" Grid.Row="2" Height="30" FontWeight="Thin"/>
+                            <TextBox x:Name="TxtExtractTarget" Grid.ColumnSpan="2" Height="30" Margin="0,5,0,5" Grid.Column="1" Grid.Row="2" BorderBrush="#FF3399FF" SelectionBrush="#FFFFAC33" FontWeight="Thin"/>
+                            <Button Content="Open" x:Name="BtnSelectCarrierTarget"  HorizontalAlignment="Stretch" Margin="10,5,0,0" VerticalAlignment="Top" Height="30" Click="BtnSelectCarrierTarget_Click" Grid.Column="3" Grid.Row="2" Background="{DynamicResource {x:Static SystemColors.HighlightBrushKey}}" BorderBrush="{x:Null}" Foreground="White" FontWeight="Thin" />
+                            <Button Content="Extract" x:Name="BtnSelectCarrierTarget_Copy"  HorizontalAlignment="Stretch" Margin="10,5,0,0" VerticalAlignment="Top" Height="30" Click="BtnExtractFromCarrier_Click" Grid.Column="3" Grid.Row="3" Background="{DynamicResource {x:Static SystemColors.HighlightBrushKey}}" BorderBrush="{x:Null}" Foreground="White" FontWeight="Thin" />
+                        </Grid>
+                    </TabItem>
+                </TabControl>
+            </TabItem>
+        </TabControl>
+    </Grid>
 </Window>

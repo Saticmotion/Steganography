@@ -1,11 +1,15 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 2012
+# Visual Studio 2013
+VisualStudioVersion = 12.0.30723.0
+MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SteganoLib", "SteganoLib\SteganoLib.csproj", "{2EE6EA3D-3F24-489C-B012-B52FC91DABDB}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SteganoTest", "SteganoTest\SteganoTest.csproj", "{DDA47662-9BCD-4E69-9C0E-40F14745B5C4}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "gui", "gui\gui.csproj", "{50194883-45F6-4924-8794-1737E6553EDD}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DesTest", "DesTest\DesTest.csproj", "{D7CD70A7-FD74-45B6-83F0-C0EEDC74CAB5}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -25,6 +29,10 @@ Global
 		{50194883-45F6-4924-8794-1737E6553EDD}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{50194883-45F6-4924-8794-1737E6553EDD}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{50194883-45F6-4924-8794-1737E6553EDD}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D7CD70A7-FD74-45B6-83F0-C0EEDC74CAB5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D7CD70A7-FD74-45B6-83F0-C0EEDC74CAB5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D7CD70A7-FD74-45B6-83F0-C0EEDC74CAB5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D7CD70A7-FD74-45B6-83F0-C0EEDC74CAB5}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

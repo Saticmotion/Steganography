@@ -14,6 +14,7 @@ using System.Windows.Interop;
 using Forms = System.Windows.Forms;
 using System.Diagnostics;
 using SteganoLib;
+using desEncryption;
 
 namespace gui
 {
@@ -30,6 +31,8 @@ namespace gui
 		private String targetPathBMP;
 		private String ExtractPathBMP;
 		private String ExtractTargetPathBMP;
+        private String encryptionFile="";
+        private String keyFile="";
 		
 
 		public MainWindow()
@@ -350,5 +353,72 @@ private void BtnEncrypt_Click(object sender, RoutedEventArgs e)
 				Process.Start(savePath);
 			}
 		}
+
+        private void btnEncryptFile_Click(object sender, RoutedEventArgs e)
+        {
+            OpenFileDialog dialog = new OpenFileDialog();
+            dialog.Filter = "Text files (*.txt)|*.txt|Des files (*.des)|*.des|All files (*.*)|*.*";
+            dialog.Multiselect = false;
+            bool? result = dialog.ShowDialog();
+
+            if (result == true)
+            {
+                encryptionFile = dialog.FileName;
+                txtEncryptFile.Text = encryptionFile;
+            }
+        }
+
+        private void btnKeyFile_Click(object sender, RoutedEventArgs e)
+        {
+            OpenFileDialog dialog = new OpenFileDialog();
+            dialog.Filter = "All files (*.*)|*.*";
+            dialog.Multiselect = false;
+            bool? result = dialog.ShowDialog();
+
+            if (result == true)
+            {
+                keyFile = dialog.FileName;
+                txtKeyFile.Text = keyFile;
+            }
+        }
+
+        private void btnOutputFile_Click(object sender, RoutedEventArgs e)
+        {
+            SaveFileDialog dialog = new SaveFileDialog();
+            dialog.OverwritePrompt = true;
+            
+            dialog.Filter = "All files (*.*)|*.*";
+            bool? result = dialog.ShowDialog();
+
+            if (result == true)
+            {
+                java.lang.Class clazz = typeof(Encryption);
+                java.lang.Thread.currentThread().setContextClassLoader(clazz.getClassLoader());
+                EncryptionMode mode;
+                String modeString;
+
+                if (rdbEncrypt.IsChecked == true){
+                    mode = EncryptionMode.ENCRYPT;
+                    modeString = "Encryption";
+                    MessageBox.Show("checked");
+                }
+                else{
+                    mode = EncryptionMode.DECRYPT;
+                    modeString = "Decryption";
+                }
+
+                String outputFile = dialog.FileName;
+                try
+                {
+                    if (Encryption.encrypt(encryptionFile, outputFile, keyFile, mode) == java.lang.Boolean.TRUE)
+                        MessageBox.Show(modeString + " complete !");
+                }
+                catch (java.io.IOException ex)
+                {
+                    string error = ex.getMessage();
+                    MessageBox.Show(error);
+                }
+            }
+        }
 	}
 }
