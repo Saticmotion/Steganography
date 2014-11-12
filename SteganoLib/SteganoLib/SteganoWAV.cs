@@ -29,7 +29,7 @@ namespace SteganoLib
             {
                 throw new FileTooLargeException("The file you are trying to embed is too large.");
             }
-            _position = _headerLength + _sampleLength - 1;
+			_position = _headerLength;//
             EncodeByte(_inputBytes.Length, 31);
 
 
@@ -73,23 +73,14 @@ namespace SteganoLib
         private static void AnalyseHeader()
         {
 			//haal de samplelength uit de wav file + in bytes
-            _sampleLength = _targetBytes[34] / 8;
+            _sampleLength = (_targetBytes[34] + _targetBytes[35] *(int)Math.Pow(2,8)) / 8;
+			
+			//controleer chunksize bytes 16-19, little endian, zet om naar int
+            int chunksize = _targetBytes[16] + _targetBytes[17]*(int)Math.Pow(2,8) 
+				+ _targetBytes[18] *(int)Math.Pow(2,16)+ _targetBytes[19]*(int)Math.Pow(2,24);
+	        //set de headerlength
+			_headerLength = 20 + chunksize + 8;
 
-			//controleer de headerlength
-            int headersize = _targetBytes[16];
-
-            switch (headersize)
-            {
-                case 16:
-                    _headerLength = 44;
-                    break;
-                case 18:
-                    _headerLength = 46;
-                    break;
-                default:
-                    _headerLength = 200;
-                    break;
-            }
         }
 
         public static byte[] Extract(String targetPath)
@@ -98,7 +89,7 @@ namespace SteganoLib
             _targetBytes = File.ReadAllBytes(targetPath);
            
             AnalyseHeader();
-            _position = _headerLength + _sampleLength - 1;
+			_position = _headerLength;//
 
             int messageLength = DecodeByte(31);
             int extentionLength = DecodeByte();
