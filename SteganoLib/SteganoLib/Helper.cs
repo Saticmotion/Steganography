@@ -4,49 +4,52 @@ namespace SteganoLib
 {
 	static class Helper
 	{
-		//Does a bitshift, but wraps the overflow
+		//Doet een bitshift naar links, maar wrapt overflow
 		public static byte RotateLeft(byte value, int count)
 		{
 			return (byte)((value << count) | (value >> (8 - count)));
 		}
 
-		//Does a bitshift, but wraps the overflow
+		//Doet een bitshift naar rechts, maar wrapt overflow
 		public static byte RotateRight(byte value, int count)
 		{
 			return (byte)((value >> count) | (value << (8 - count)));
 		}
 
-		//Gets the bit at a certain position in a byte
+		//Vind de bit op een bepaalde positite in een byte.
 		public static bool GetBit(byte b, int bitNumber)
 		{
 			return (b & (1 << bitNumber)) != 0;
 		}
 
-		//Gets the bit at a certain position in a byte,
-		//And presents it as a byte: 00000000 or 00000001
+		//Vind de bit op een bepaalde positie en geef terug als een byte:
+		//0000 0000 of 0000 0001
 		public static byte GetBitAsByte(byte b, int bitNumber)
 		{
-			//This is the same function as GetBit, but we add a conversion to Byte.
-			//This is possible because a boolean also takes a byte of memory.
+			//Zelfde functie als GetBit, maar een conversie naar Byte.
+			//Dit is mogelijk omdat een boolean ook een byte geheugen gebruikt.
 			return Convert.ToByte((b & (1 << bitNumber)) != 0);
 		}
 
-		//Gets the bit at a certain position in an int,
-		//And presents it as an int: 0x0000 or 0x0001
+		//Vind de bit op een bepaalde positie en geef terug als een byte:
+		//0x0000 of 0x0001
 		public static int GetBitAsInt(int b, int bitNumber)
 		{
-			//This is the same function as GetBit, but we add a conversion to Byte.
-			//This is possible because a boolean also takes a byte of memory.
+			//Zelfde functie als GetBit, maar een conversie naar Byte.
+			//Dit is mogelijk omdat een boolean ook een byte geheugen gebruikt.
+			//Hierdoor is een cast naar Int32 ook mogelijk.
 			return Convert.ToInt32((b & (1 << bitNumber)) != 0);
 		}
 
-		//Convert a byte to a string, and pad it with leading zeroes.
+		//Converteer een byte naar een string, en voeg padding toe
+		//in de vorm van nullen aan de linkerkant: 00010101
 		public static string PrintAsBits(byte b)
 		{
 			return Convert.ToString(b, 2).PadLeft(8, '0');
 		}
 
-		//Convert an int to a string, and pad it with leading zeroes.
+		//Converteer een int naar een string, en voeg padding toe
+		//in de vorm van nullen aan de linkerkant
 		public static string PrintAsBits(int i)
 		{
 			return Convert.ToString(i, 2).PadLeft(32, '0');
