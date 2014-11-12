@@ -103,6 +103,10 @@ namespace gui
 				{
 					MessageBox.Show(fileTooLargeException.Message);
 				}
+				catch (FileNotFoundException fileNotFoundException)
+				{
+					MessageBox.Show(fileNotFoundException.Message);
+				}
 				
 
 			}
@@ -152,16 +156,36 @@ namespace gui
 		{
 			SaveFileDialog sDialog = new SaveFileDialog();
 
-			byte[] resultMessage = SteganoWav.Extract(_extractString);
-			string extention = SteganoWav.Extention;
-			sDialog.Filter = "(*." + extention + ")|*" + extention;
-
-			Nullable<bool> result = sDialog.ShowDialog();
-			if (result == true)
+			try
 			{
-				_outputMessageFilepath = sDialog.FileName + "." + extention;
-				File.WriteAllBytes(_outputMessageFilepath,resultMessage);
-				BtnOpenMessageFile.IsEnabled = true;
+				byte[] resultMessage = SteganoWav.Extract(_extractString);
+				string extention = SteganoWav.Extention;
+				sDialog.Filter = "(*." + extention + ")|*" + extention;
+				sDialog.DefaultExt = extention;
+				sDialog.AddExtension = true;
+				Nullable<bool> result = sDialog.ShowDialog();
+				if (result == true)
+				{
+					_outputMessageFilepath = sDialog.FileName;
+					File.WriteAllBytes(_outputMessageFilepath, resultMessage);
+					BtnOpenMessageFile.IsEnabled = true;
+				}
+			}
+			catch (FileNotFoundException fileNotFoundException)
+			{
+				MessageBox.Show(fileNotFoundException.Message);
+			}
+			catch (ArithmeticException arithmeticException)
+			{
+				MessageBox.Show(arithmeticException.Message);
+			}
+			catch (FileTooLargeException fileTooLargeException)
+			{
+				MessageBox.Show(fileTooLargeException.Message);
+			}
+			catch (ArgumentException argumentException)
+			{
+				MessageBox.Show(argumentException.Message);
 			}
 		}
 

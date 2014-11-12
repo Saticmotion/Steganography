@@ -12,17 +12,19 @@ namespace SteganoLib
         private static byte[] _targetBytes;
         private static byte[] _inputBytes;
         private static int _sampleLength, _headerLength, _position;
-        public static string Extention = "";
+        public static String Extention = "";
         public static byte[] Embed(String targetPath, String inputPath)
         {
+			//lees alle bytes van target(carrier file) en input(message) in.
             _targetBytes = File.ReadAllBytes(targetPath);
             _inputBytes = File.ReadAllBytes(inputPath);
             
             AnalyseHeader();
             char[] extention = Path.GetExtension(inputPath).Replace(".", "").ToCharArray();
             
-            //check if file is large enough 
-            int byteNeeded = _inputBytes.Length * _sampleLength * 8 + extention.Length * 8 + 8;
+            //controleer of er genoeg bytes in _targetBytes beschikbaar zijn om de message in te zetten
+            int byteNeeded = _inputBytes.Length * _sampleLength * 8 + extention.Length * 
+				_sampleLength * 8 + 8 *_sampleLength +32 * _sampleLength;
             if (byteNeeded > _targetBytes.Length - _headerLength)
             {
                 throw new FileTooLargeException("The file you are trying to embed is too large.");
@@ -31,14 +33,14 @@ namespace SteganoLib
             EncodeByte(_inputBytes.Length, 31);
 
 
-            //embed file extention
+            //zet de extentie in _targetBytes
             EncodeByte(extention.Length);
             foreach (var c in extention)
             {
                 EncodeByte(c);
             }
 
-            //embed the message
+            //zet het bericht in _targetBytes
             foreach (byte t in _inputBytes)
             {
                 EncodeByte(t);
@@ -64,13 +66,16 @@ namespace SteganoLib
                 {
                     x--;
                 }
-                _targetBytes[_position] = x;//put adjusted byte in buffer
+                _targetBytes[_position] = x;//put adjusted byte in targetBytes
                 _position += _sampleLength;
             }
         }
         private static void AnalyseHeader()
         {
+			//haal de samplelength uit de wav file + in bytes
             _sampleLength = _targetBytes[34] / 8;
+
+			//controleer de headerlength
             int headersize = _targetBytes[16];
 
             switch (headersize)
@@ -89,31 +94,57 @@ namespace SteganoLib
 
         public static byte[] Extract(String targetPath)
         {
+			
             _targetBytes = File.ReadAllBytes(targetPath);
            
             AnalyseHeader();
             _position = _headerLength + _sampleLength - 1;
+
             int messageLength = DecodeByte(31);
             int extentionLength = DecodeByte();
+			//controleer of message wel in deze file kan
+			int byteNeeded = messageLength * _sampleLength * 8 + extentionLength *
+				_sampleLength * 8 + 8 * _sampleLength + 32 * _sampleLength;
+	        if (messageLength < 0)
+	        {
+		        throw  new ArithmeticException("messageLength is kleiner dan 0");
+	        }
+			if (byteNeeded > _targetBytes.Length - _headerLength)
+			{
+				throw new FileTooLargeException("De message is te groot om in deze file te kunnen zitten.");
+			}
+
             char[] extention = new char[extentionLength];
+			//haal de extentie van de message uit de file
             for (int i = 0; i < extentionLength; i++)
             {
                 extention[i] = (char) DecodeByte();
             }
+			
             Extention = new string(extention);
+			//controleer of de extentie geldig is
+	        if (Extention.IndexOfAny(Path.GetInvalidFileNameChars())>=0)
+	        {
+		        throw new ArgumentException("extentie is niet geldig");
+	        }
+			
+			//maak array die zolang is als message
             _inputBytes = new byte[messageLength];
+			
             for (int i = 0; i < messageLength; i++)
             {
                 _inputBytes[i]= (byte)DecodeByte();
             }
             return _inputBytes;
         }
-        private static int DecodeByte(int length = 7)
+        //haalt het resultaat uit de _targetBytes
+		private static int DecodeByte(int length = 7)
         {
             int result = 0;
             for (int pos = 0; pos <= length; pos++)
             {
-                
+                //shift result 1 plaats naar links
+				//tel laatste bit van _targetBytes[p] op bij result
                 result = result << 1;
                 result += _targetBytes[_position] & 1;
                 _position += _sampleLength;
